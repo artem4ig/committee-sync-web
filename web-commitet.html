@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Committee Portal</title>
+  <style>
+    :root {
+      --bg: #070b14;
+      --bg-soft: rgba(255,255,255,0.06);
+      --bg-card: rgba(255,255,255,0.08);
+      --border: rgba(255,255,255,0.11);
+      --text: #f4f7ff;
+      --muted: rgba(255,255,255,0.62);
+      --muted-2: rgba(255,255,255,0.42);
+      --cyan: #62dfff;
+      --blue: #72a8ff;
+      --violet: #b17cff;
+      --pink: #ff74d4;
+      --emerald: #59f0b5;
+      --shadow: 0 20px 70px rgba(0, 0, 0, 0.42);
+      --radius-xl: 32px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+      --blur: blur(24px);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at 18% 18%, rgba(98,223,255,0.16), transparent 24%),
+        radial-gradient(circle at 82% 10%, rgba(177,124,255,0.16), transparent 22%),
+        radial-gradient(circle at 50% 80%, rgba(89,240,181,0.10), transparent 24%),
+        linear-gradient(180deg, #070b14 0%, #08101d 100%);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 44px 44px;
+      opacity: .18;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .container {
+      width: min(1280px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .glass {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      box-shadow: var(--shadow);
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 40;
+      border-bottom: 1px solid var(--border);
+      background: rgba(5, 9, 18, 0.42);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+    }
+
+    .nav-inner {
+      min-height: 78px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 16px;
+      display: grid;
+      place-items: center;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      box-shadow: 0 0 30px rgba(98,223,255,0.15);
+    }
+
+    .brand-title { font-size: 15px; font-weight: 700; letter-spacing: .02em; }
+    .brand-sub { font-size: 12px; color: var(--muted-2); margin-top: 3px; }
+
+    .nav-links {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .nav-links a, .button, .chip {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .nav-link {
+      padding: 10px 14px;
+      border-radius: 999px;
+      color: var(--muted);
+      transition: .25s ease;
+      font-size: 14px;
+      border: 1px solid transparent;
+    }
+
+    .nav-link:hover {
+      background: rgba(255,255,255,0.08);
+      color: white;
+      border-color: rgba(255,255,255,0.08);
+      transform: translateY(-1px);
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 13px 18px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.12);
+      transition: .25s ease;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .button:hover { transform: translateY(-2px) scale(1.01); }
+    .button-primary {
+      background: white;
+      color: #08111f;
+      box-shadow: 0 10px 30px rgba(255,255,255,0.12);
+    }
+    .button-secondary {
+      background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.88);
+    }
+
+    .hero {
+      padding: 34px 0 18px;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .hero-main, .profile-card, .section-card, .cta-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius-xl);
+    }
+
+    .hero-main { padding: 42px; }
+    .hero-main::before,
+    .cta-card::before,
+    .committee-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(98,223,255,0.10), transparent 50%, rgba(255,116,212,0.08));
+      pointer-events: none;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      margin-bottom: 18px;
+      color: #c7f7ff;
+      background: rgba(98,223,255,0.10);
+      border: 1px solid rgba(98,223,255,0.18);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--cyan);
+      box-shadow: 0 0 14px rgba(98,223,255,0.8);
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0%,100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.25); opacity: .65; }
+    }
+
+    h1 {
+      font-size: clamp(38px, 5vw, 72px);
+      line-height: 1.04;
+      margin: 0;
+      letter-spacing: -0.04em;
+      max-width: 920px;
+    }
+
+    .gradient-text {
+      background: linear-gradient(90deg, #9aecff 0%, #86b8ff 45%, #ebb4ff 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .hero-copy {
+      margin-top: 18px;
+      max-width: 760px;
+      font-size: 17px;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 26px;
+    }
+
+    .stats-grid {
+      margin-top: 30px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .stat {
+      padding: 18px;
+      border-radius: 22px;
+      background: rgba(0,0,0,0.20);
+      border: 1px solid rgba(255,255,255,0.09);
+    }
+
+    .stat-value { font-size: 30px; font-weight: 700; }
+    .stat-label { font-size: 14px; color: var(--muted-2); margin-top: 6px; }
+
+    .profile-card {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 100%;
+    }
+
+    .row-between {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .avatar {
+      width: 58px;
+      height: 58px;
+      border-radius: 20px;
+      padding: 1px;
+      background: linear-gradient(135deg, #9aecff, #ff89da);
+    }
+
+    .avatar-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 19px;
+      background: #0a1020;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+    }
+
+    .label { font-size: 13px; color: var(--muted-2); }
+    .value { font-size: 22px; font-weight: 700; margin-top: 4px; }
+
+    .profile-body, .milestone {
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,0.09);
+      background: rgba(0,0,0,0.22);
+      padding: 18px;
+    }
+
+    .online-pill {
+      padding: 8px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #cbffe8;
+      background: rgba(89,240,181,0.10);
+      border: 1px solid rgba(89,240,181,0.18);
+    }
+
+    .profile-list {
+      margin-top: 18px;
+      display: grid;
+      gap: 14px;
+      font-size: 14px;
+    }
+
+    .profile-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .profile-item span:first-child { color: var(--muted); }
+    .profile-item span:last-child { color: rgba(255,255,255,.92); }
+
+    .milestone {
+      margin-top: 18px;
+      background: linear-gradient(135deg, rgba(98,223,255,0.10), rgba(255,116,212,0.08));
+    }
+
+    .progress {
+      margin-top: 16px;
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.10);
+      overflow: hidden;
+    }
+
+    .progress > div {
+      width: 72%;
+      height: 100%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #9aecff, #ec98ff);
+      box-shadow: 0 0 28px rgba(152,209,255,0.35);
+    }
+
+    .section { padding: 16px 0; }
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .section-kicker { font-size: 13px; color: var(--muted-2); }
+    .section-title { font-size: clamp(28px, 3vw, 42px); margin: 5px 0 0; }
+
+    .chip {
+      padding: 10px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      color: var(--muted);
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.09);
+    }
+
+    .committees-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .committee-card {
+      position: relative;
+      padding: 20px;
+      border-radius: 28px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.06);
+      backdrop-filter: blur(22px);
+      -webkit-backdrop-filter: blur(22px);
+      box-shadow: 0 16px 50px rgba(0,0,0,0.30);
+      transition: .3s ease;
+    }
+
+    .committee-card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(255,255,255,0.16);
+      box-shadow: 0 25px 55px rgba(0,0,0,0.38);
+    }
+
+    .committee-card .committee-bg {
+      position: absolute;
+      inset: 0;
+      opacity: .85;
+      pointer-events: none;
+    }
+
+    .committee-content { position: relative; z-index: 2; }
+
+    .mini-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .tag {
+      font-size: 12px;
+      padding: 7px 11px;
+      border-radius: 999px;
+      background: rgba(0,0,0,0.24);
+      border: 1px solid rgba(255,255,255,0.10);
+      color: rgba(255,255,255,0.78);
+    }
+
+    .committee-name { font-size: 24px; font-weight: 700; margin: 18px 0 8px; }
+    .committee-desc { font-size: 14px; line-height: 1.65; color: var(--muted); min-height: 72px; }
+
+    .mini-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .mini-stat {
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,0.09);
+      background: rgba(0,0,0,0.22);
+    }
+
+    .mini-stat .label { font-size: 12px; }
+    .mini-stat .number { font-size: 22px; font-weight: 700; margin-top: 6px; }
+
+    .committee-card .button {
+      width: 100%;
+      margin-top: 18px;
+      background: rgba(255,255,255,0.10);
+      color: white;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .section-card { padding: 24px; }
+    .card-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+
+    .subtle-btn {
+      padding: 10px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.05);
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .members-list, .leaderboard-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .member-item, .leader-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.09);
+      background: rgba(0,0,0,0.22);
+      transition: .25s ease;
+    }
+
+    .member-item:hover, .leader-item:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255,255,255,0.14);
+    }
+
+    .member-left, .leader-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .member-avatar, .rank-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 18px;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: linear-gradient(135deg, rgba(255,255,255,0.16), rgba(255,255,255,0.04));
+      flex-shrink: 0;
+    }
+
+    .item-title { font-weight: 600; }
+    .item-sub { font-size: 13px; color: var(--muted-2); margin-top: 4px; }
+    .item-right { color: var(--muted); font-size: 14px; text-align: right; }
+
+    .award-pill {
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #ffe9b4;
+      background: rgba(255,194,72,0.10);
+      border: 1px solid rgba(255,194,72,0.18);
+    }
+
+    .leader-points { text-align: right; }
+    .leader-points .points { font-size: 24px; font-weight: 700; }
+    .leader-points .caption { font-size: 12px; color: var(--muted-2); }
+
+    .info-banner {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.10);
+      background: linear-gradient(90deg, rgba(255,116,212,0.10), rgba(98,223,255,0.10));
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 14px;
+    }
+
+    .cta-card {
+      margin: 18px 0 42px;
+      padding: 34px;
+    }
+
+    .cta-grid {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .cta-copy h3 {
+      margin: 8px 0 0;
+      font-size: clamp(30px, 4vw, 48px);
+      line-height: 1.08;
+      letter-spacing: -0.035em;
+      max-width: 840px;
+    }
+
+    .cta-copy p {
+      margin: 16px 0 0;
+      color: var(--muted);
+      line-height: 1.75;
+      max-width: 780px;
+      font-size: 16px;
+    }
+
+    .cta-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .fade-up {
+      opacity: 0;
+      transform: translateY(22px);
+      animation: fadeUp .9s ease forwards;
+    }
+
+    .delay-1 { animation-delay: .08s; }
+    .delay-2 { animation-delay: .16s; }
+    .delay-3 { animation-delay: .24s; }
+    .delay-4 { animation-delay: .32s; }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 1100px) {
+      .hero-grid, .two-col, .cta-grid { grid-template-columns: 1fr; }
+      .committees-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .cta-actions { justify-content: flex-start; }
+    }
+
+    @media (max-width: 820px) {
+      .nav-inner { flex-wrap: wrap; padding: 14px 0; }
+      .nav-links { order: 3; width: 100%; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .committees-grid { grid-template-columns: 1fr; }
+      .hero-main, .profile-card, .section-card, .cta-card { border-radius: 24px; }
+      .hero-main { padding: 24px; }
+      .section-card, .profile-card, .cta-card { padding: 20px; }
+      .container { width: min(1280px, calc(100% - 24px)); }
+    }
+  </style>
+</head>
+<body>
+  <header class="nav">
+    <div class="container nav-inner">
+      <div class="brand fade-up">
+        <div class="brand-badge">✦</div>
+        <div>
+          <div class="brand-title">Committee Portal</div>
+          <div class="brand-sub">Єдина внутрішня система · концепт 2026</div>
+        </div>
+      </div>
+
+      <nav class="nav-links fade-up delay-1">
+        <a class="nav-link" href="#dashboard">Головна</a>
+        <a class="nav-link" href="#committees">Комітети</a>
+        <a class="nav-link" href="#members">Учасники</a>
+        <a class="nav-link" href="#leaderboard">Рейтинг</a>
+        <a class="nav-link" href="#knowledge">База знань</a>
+      </nav>
+
+      <a href="#committees" class="button button-primary fade-up delay-2">Відкрити портал</a>
+    </div>
+  </header>
+
+  <main class="container" id="dashboard">
+    <section class="hero">
+      <div class="hero-grid">
+        <div class="hero-main glass fade-up">
+          <div class="status-pill">
+            <span class="status-dot"></span>
+            Єдина система для всіх комітетів
+          </div>
+
+          <h1>
+            Один портал для <span class="gradient-text">учасників, комітетів, тасків, рейтингу</span> та внутрішньої бази знань.
+          </h1>
+
+          <p class="hero-copy">
+            Преміальна внутрішня платформа з доступами по ролях, просторами для комітетів, профілями учасників,
+            системою балів, прозорим трекінгом активності та сучасним інтерфейсом у стилі glassmorphism.
+          </p>
+
+          <div class="hero-actions">
+            <a href="#committees" class="button button-primary">Запустити демо</a>
+            <a href="#members" class="button button-secondary">Подивитись структуру</a>
+          </div>
+
+          <div class="stats-grid">
+            <div class="stat">
+              <div class="stat-value">8</div>
+              <div class="stat-label">Активних комітетів</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">124</div>
+              <div class="stat-label">Учасники в системі</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">312</div>
+              <div class="stat-label">Закритих тасків за квартал</div>
+            </div>
+          </div>
+        </div>
+
+        <aside class="profile-card glass fade-up delay-2">
+          <div>
+            <div class="row-between">
+              <div>
+                <div class="label">Особистий профіль</div>
+                <div class="value">Artem Norman</div>
+              </div>
+              <div class="avatar">
+                <div class="avatar-inner">AN</div>
+              </div>
+            </div>
+
+            <div class="profile-body" style="margin-top: 18px;">
+              <div class="row-between">
+                <div>
+                  <div class="label">Поточна роль</div>
+                  <div style="font-weight: 600; margin-top: 5px;">Observer · Design & IT</div>
+                </div>
+                <div class="online-pill">Online</div>
+              </div>
+
+              <div class="profile-list">
+                <div class="profile-item"><span>Бали за квартал</span><span>14 points</span></div>
+                <div class="profile-item"><span>Активні таски</span><span>5 tasks</span></div>
+                <div class="profile-item"><span>Доступ до комітетів</span><span>IT, Design, HR</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="milestone">
+            <div class="label">Наступна віха</div>
+            <div style="font-size: 20px; font-weight: 700; margin-top: 6px;">До закриття квартальних нагород — 9 днів</div>
+            <div class="progress"><div></div></div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" id="committees">
+      <div class="section-head">
+        <div>
+          <div class="section-kicker">Вибір комітету</div>
+          <h2 class="section-title">Оберіть свій простір</h2>
+        </div>
+        <div class="chip">Гнучка структура · доступи по ролях · масштабування</div>
+      </div>
+
+      <div class="committees-grid">
+        <article class="committee-card fade-up">
+          <div class="committee-bg" style="background: linear-gradient(135deg, rgba(98,223,255,0.22), rgba(114,168,255,0.08));"></div>
+          <div class="committee-content">
+            <div class="mini-top">
+              <div class="tag">Build systems</div>
+              <div style="color: rgba(255,255,255,0.4);">→</div>
+            </div>
+            <div class="committee-name">IT Committee</div>
+            <div class="committee-desc">Інфраструктура, боти, внутрішні інструменти, автоматизація та розвиток цифрової екосистеми.</div>
+            <div class="mini-stats">
+              <div class="mini-stat"><div class="label">Members</div><div class="number">18</div></div>
+              <div class="mini-stat"><div class="label">Tasks</div><div class="number">42</div></div>
+            </div>
+            <a class="button" href="#">Увійти в комітет</a>
+          </div>
+        </article>
+
+        <article class="committee-card fade-up delay-1">
+          <div class="committee-bg" style="background: linear-gradient(135deg, rgba(255,116,212,0.22), rgba(177,124,255,0.08));"></div>
+          <div class="committee-content">
+            <div class="mini-top">
+              <div class="tag">Shape the brand</div>
+              <div style="color: rgba(255,255,255,0.4);">→</div>
+            </div>
+            <div class="committee-name">Design Committee</div>
+            <div class="committee-desc">Візуальний стиль, брендинг подій, motion-графіка, постери та всі ключові візуальні матеріали.</div>
+            <div class="mini-stats">
+              <div class="mini-stat"><div class="label">Members</div><div class="number">14</div></div>
+              <div class="mini-stat"><div class="label">Tasks</div><div class="number">31</div></div>
+            </div>
+            <a class="button" href="#">Увійти в комітет</a>
+          </div>
+        </article>
+
+        <article class="committee-card fade-up delay-2">
+          <div class="committee-bg" style="background: linear-gradient(135deg, rgba(177,124,255,0.22), rgba(114,168,255,0.08));"></div>
+          <div class="committee-content">
+            <div class="mini-top">
+              <div class="tag">Grow attention</div>
+              <div style="color: rgba(255,255,255,0.4);">→</div>
+            </div>
+            <div class="committee-name">PR Committee</div>
+            <div class="committee-desc">Комунікація назовні, анонси, кампанії, охоплення аудиторії та посилення впізнаваності організації.</div>
+            <div class="mini-stats">
+              <div class="mini-stat"><div class="label">Members</div><div class="number">12</div></div>
+              <div class="mini-stat"><div class="label">Tasks</div><div class="number">26</div></div>
+            </div>
+            <a class="button" href="#">Увійти в комітет</a>
+          </div>
+        </article>
+
+        <article class="committee-card fade-up delay-3">
+          <div class="committee-bg" style="background: linear-gradient(135deg, rgba(89,240,181,0.22), rgba(98,223,255,0.08));"></div>
+          <div class="committee-content">
+            <div class="mini-top">
+              <div class="tag">Support people</div>
+              <div style="color: rgba(255,255,255,0.4);">→</div>
+            </div>
+            <div class="committee-name">HR Committee</div>
+            <div class="committee-desc">Онбординг, культура, підтримка людей, утримання активності та внутрішній розвиток команди.</div>
+            <div class="mini-stats">
+              <div class="mini-stat"><div class="label">Members</div><div class="number">10</div></div>
+              <div class="mini-stat"><div class="label">Tasks</div><div class="number">19</div></div>
+            </div>
+            <a class="button" href="#">Увійти в комітет</a>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="two-col">
+        <div class="section-card glass" id="members">
+          <div class="card-head">
+            <div>
+              <div class="section-kicker">Учасники</div>
+              <div style="font-size: 32px; font-weight: 700; margin-top: 4px;">Огляд команди</div>
+            </div>
+            <button class="subtle-btn">Усі профілі</button>
+          </div>
+
+          <div class="members-list">
+            <div class="member-item">
+              <div class="member-left">
+                <div class="member-avatar">SK</div>
+                <div>
+                  <div class="item-title">Sasha K.</div>
+                  <div class="item-sub">IT Committee</div>
+                </div>
+              </div>
+              <div class="item-right">Lead contributor</div>
+            </div>
+
+            <div class="member-item">
+              <div class="member-left">
+                <div class="member-avatar">MP</div>
+                <div>
+                  <div class="item-title">Marta P.</div>
+                  <div class="item-sub">Design Committee</div>
+                </div>
+              </div>
+              <div class="item-right">Brand & motion</div>
+            </div>
+
+            <div class="member-item">
+              <div class="member-left">
+                <div class="member-avatar">AV</div>
+                <div>
+                  <div class="item-title">Andrii V.</div>
+                  <div class="item-sub">PR Committee</div>
+                </div>
+              </div>
+              <div class="item-right">Campaigns</div>
+            </div>
+
+            <div class="member-item">
+              <div class="member-left">
+                <div class="member-avatar">IM</div>
+                <div>
+                  <div class="item-title">Ira M.</div>
+                  <div class="item-sub">HR Committee</div>
+                </div>
+              </div>
+              <div class="item-right">Onboarding</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section-card glass" id="leaderboard">
+          <div class="card-head">
+            <div>
+              <div class="section-kicker">Quarter leaderboard</div>
+              <div style="font-size: 32px; font-weight: 700; margin-top: 4px;">Топ активності</div>
+            </div>
+            <div class="award-pill">Award mode enabled</div>
+          </div>
+
+          <div class="leaderboard-list">
+            <div class="leader-item">
+              <div class="leader-left">
+                <div class="rank-box">#1</div>
+                <div>
+                  <div class="item-title">Sasha</div>
+                  <div class="item-sub">IT Committee</div>
+                </div>
+              </div>
+              <div class="leader-points"><div class="points">8</div><div class="caption">points</div></div>
+            </div>
+
+            <div class="leader-item">
+              <div class="leader-left">
+                <div class="rank-box">#2</div>
+                <div>
+                  <div class="item-title">Marta</div>
+                  <div class="item-sub">Design Committee</div>
+                </div>
+              </div>
+              <div class="leader-points"><div class="points">7</div><div class="caption">points</div></div>
+            </div>
+
+            <div class="leader-item">
+              <div class="leader-left">
+                <div class="rank-box">#3</div>
+                <div>
+                  <div class="item-title">Oleh</div>
+                  <div class="item-sub">PR Committee</div>
+                </div>
+              </div>
+              <div class="leader-points"><div class="points">6</div><div class="caption">points</div></div>
+            </div>
+
+            <div class="leader-item">
+              <div class="leader-left">
+                <div class="rank-box">#4</div>
+                <div>
+                  <div class="item-title">Ira</div>
+                  <div class="item-sub">HR Committee</div>
+                </div>
+              </div>
+              <div class="leader-points"><div class="points">6</div><div class="caption">points</div></div>
+            </div>
+          </div>
+
+          <div class="info-banner">
+            Наприкінці кожного кварталу найактивніший учасник кожного комітету отримує унікальну нагороду.
+            Система поєднує прозорість, визнання внеску та посилення внутрішнього бренду організації.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="knowledge">
+      <div class="cta-card glass">
+        <div class="cta-grid">
+          <div class="cta-copy">
+            <div class="section-kicker">База знань · анонси · внутрішній форум</div>
+            <h3>Створено, щоб виглядати серйозно, масштабуватись чисто і робити роботу комітетів реально преміальною.</h3>
+            <p>
+              Така система може замінити розкидані чати, загублені доступи та хаос однією стабільною платформою.
+              Вона посилює структуру, онбординг, відповідальність та довгострокову безперервність роботи.
+            </p>
+          </div>
+          <div class="cta-actions">
+            <a href="#dashboard" class="button button-primary">Старт прототипу</a>
+            <a href="#members" class="button button-secondary">Переглянути концепт</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const cards = document.querySelectorAll('.committee-card, .section-card, .hero-main, .profile-card, .cta-card');
+
+    cards.forEach((card) => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const rx = ((y / rect.height) - 0.5) * -4;
+        const ry = ((x / rect.width) - 0.5) * 6;
+        card.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg) translateY(-2px)`;
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+      });
+    });
+  </script>
+</body>
+</html>
