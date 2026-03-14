@@ -28,15 +28,4 @@ The primary goal of this layout is to provide a clean, responsive, and user-frie
 
 ---
 
-## 🚀 Getting Started
 
-To get a local copy up and running, follow these simple steps.
-
-### Prerequisites
-You only need a modern web browser to view the project. For development, a code editor like VS Code with the "Live Server" extension is recommended.
-
-### Installation
-
-1. Clone the repository:
-   ```sh
-   git clone [https://github.com/your-username/syncboard-ui.git](https://github.com/your-username/syncboard-ui.git)
